@@ -34,7 +34,11 @@ cdk-test:
 	cd packages/cdk && npm test
 
 cdk-synth:
-	cd packages/cdk && npx cdk synth > /dev/null
+	cd packages/cdk && \
+	  WORKSPACE_IRSA_ROLE_ARN=$${WORKSPACE_IRSA_ROLE_ARN:-arn:aws:iam::111111111111:role/workspace-irsa-role} \
+	  CDK_DEFAULT_ACCOUNT=$${CDK_DEFAULT_ACCOUNT:-111111111111} \
+	  CDK_DEFAULT_REGION=$${CDK_DEFAULT_REGION:-us-east-1} \
+	  npx cdk synth > /dev/null
 
 test: api-test website-test cdk-test
 
