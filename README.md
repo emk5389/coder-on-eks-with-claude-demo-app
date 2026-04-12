@@ -1,6 +1,6 @@
-# coder-and-claude-on-eks-demo-app
+# coder-on-eks-with-claude-demo-app
 
-The doc-chat demo application — single-PDF chat backed by Bedrock Claude. This is what you clone *into* a [`coder-and-claude-on-eks-demo-infra`](https://github.com/REPLACE_ME/coder-and-claude-on-eks-demo-infra) workspace and run via `make up`.
+The doc-chat demo application — single-PDF chat backed by Bedrock Claude. This is what you clone *into* a Coder workspace and run via `make up`.
 
 ## What's in here
 
@@ -12,7 +12,7 @@ The doc-chat demo application — single-PDF chat backed by Bedrock Claude. This
 
 ## Prerequisites
 
-You should already have deployed [`coder-and-claude-on-eks-demo-infra`](https://github.com/REPLACE_ME/coder-and-claude-on-eks-demo-infra) and have the workspace IRSA role ARN handy. Then, **inside a Coder workspace** spun up from that infra:
+You should already have deployed the infra stack and have the workspace IRSA role ARN handy. Then, **inside a Coder workspace** spun up from that infra:
 
 1. Clone this repo into the workspace.
 2. Make sure `aws sts get-caller-identity` returns *your* AWS account (not "coder" or an empty error). If it fails, your `WORKSPACE_ACCESS_ROLE_ARN` workspace template parameter is unset — see Task 5 of the infra walkthrough.
@@ -49,17 +49,17 @@ Now go back to the infra walkthrough Task 5: re-push the workspace template with
 
 ## Running locally
 
-From the monorepo root, with `DOCUMENTS_BUCKET` exported:
+From the monorepo root:
 
 ```bash
 make up
 ```
 
-This builds the api image, starts postgres + api + web, runs the migration, and waits for healthz to be 200. Output:
+This auto-fetches `DOCUMENTS_BUCKET` from CloudFormation, injects AWS credentials from your SSO session, builds the images, and starts postgres + api + web. Output:
 
 ```
 API:  http://localhost:8000  (healthz: http://localhost:8000/healthz)
-Web:  http://localhost:5173
+Web:  http://localhost:3000
 ```
 
 Inside a Coder workspace, run `claude` and ask Claude to call the `preview-urls` skill to get the public preview URLs. (Or read them off the workspace dashboard.)
@@ -85,7 +85,7 @@ Runs:
 
 ## Architecture notes
 
-**The api container's bind-mounted `~/.aws` is the seam** where the workspace's role chain reaches the application code. The api Dockerfile creates a non-root user `api` with home `/home/api`, and `docker-compose.yml` mounts the workspace's `/home/coder/.aws` to `/home/api/.aws:ro`. The api thinks it's just `boto3.client('s3')`, but the credentials flow through IRSA → access role under the hood.
+**The api container's bind-mounted `~/.aws` is the seam** where the workspace's role chain reaches the application code. The api Dockerfile creates a non-root user `api` with home `/home/api`, and `docker-compose.yml` mounts `~/.aws` to `/home/api/.aws:ro`. Locally, `make up` also injects temporary SSO credentials as env vars. In Coder, the IRSA role chain config in `~/.aws/config` handles it. Either way, the api thinks it's just `boto3.client('s3')`.
 
 **No RAG, no embeddings, no chunking.** Documents go to S3 as-is, and on every chat turn the api fetches the full PDF from S3 and sends it to Bedrock as `BinaryContent`. Bedrock Claude natively accepts PDFs. This is fine for demo-sized documents and intentionally not how you'd build something with thousands of pages.
 
