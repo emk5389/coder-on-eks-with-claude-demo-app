@@ -1,15 +1,14 @@
 ---
 name: preview-urls
 description: >
-  Get Coder workspace preview URLs for the doc-chat web app and api. MUST use
-  when creating a PR from a Coder workspace to include the web preview link in
-  the PR description. Reads the deployment host from the CODER_DEPLOYMENT_HOST
-  env var set by the workspace template.
+  Get Coder workspace preview URLs. MUST use when creating a PR from a
+  Coder workspace to include the web app preview link in the PR description.
+  Also provides proxy URL for the API (port 8000).
 ---
 
 # Preview URLs
 
-Print the Coder workspace preview URLs for doc-chat. Only works inside a Coder workspace.
+Print the Coder workspace preview URLs. Only works inside a Coder workspace.
 
 ## Instructions
 
@@ -31,15 +30,15 @@ if [[ -z "$HOST" ]]; then
   exit 1
 fi
 
-WEB_PREVIEW="https://preview--${WORKSPACE}--${OWNER}.${HOST}"
+PREVIEW_URL="https://preview--${WORKSPACE}--${OWNER}.${HOST}"
 
 echo ""
-echo "=== Doc-Chat Preview URLs ==="
-echo "Web App:  ${WEB_PREVIEW}"
+echo "=== Coder Preview URLs ==="
+echo "Web App:  ${PREVIEW_URL}"
 echo "API:      https://8000--${AGENT}--${WORKSPACE}--${OWNER}.${HOST}"
-echo "============================="
+echo "==========================="
 echo ""
 echo "Open in a new browser tab (not embedded iframe) to avoid CORS issues."
 ```
 
-After printing, tell the user the web preview URL. When creating a PR, always include the web preview URL in the PR description.
+After printing, tell the user the preview URL. When creating a PR, always include the web app preview URL in the PR description.
