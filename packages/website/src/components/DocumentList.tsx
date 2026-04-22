@@ -2,6 +2,7 @@ import React from "react";
 import { listDocuments } from "../api";
 import type { Document } from "../types";
 import { UploadButton } from "./UploadButton";
+import { PDFModal } from "./PDFModal";
 
 interface Props {
   selectedId: string | null;
@@ -19,6 +20,7 @@ export function DocumentList({
   const [docs, setDocs] = React.useState<Document[]>([]);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
+  const [previewDoc, setPreviewDoc] = React.useState<Document | null>(null);
 
   React.useEffect(() => {
     let cancelled = false;
@@ -57,10 +59,27 @@ export function DocumentList({
             className={d.id === selectedId ? "selected" : ""}
             onClick={() => onSelect(d.id)}
           >
-            {d.name}
+            <span className="doc-name">{d.name}</span>
+            <button
+              className="doc-preview-btn"
+              title="Preview PDF"
+              onClick={(e) => {
+                e.stopPropagation();
+                setPreviewDoc(d);
+              }}
+            >
+              &#128196;
+            </button>
           </li>
         ))}
       </ul>
+      {previewDoc && (
+        <PDFModal
+          documentId={previewDoc.id}
+          documentName={previewDoc.name}
+          onClose={() => setPreviewDoc(null)}
+        />
+      )}
     </div>
   );
 }
