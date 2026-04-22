@@ -23,7 +23,7 @@ up:
 	  export DOCUMENTS_BUCKET; \
 	  echo "  Using DOCUMENTS_BUCKET=$$DOCUMENTS_BUCKET"; \
 	fi; \
-	CREDS=$$(aws configure export-credentials --format env 2>/dev/null | sed 's/^export //'); \
+	CREDS=$$(aws configure export-credentials --profile default --format env 2>/dev/null | sed 's/^export //'); \
 	if [ -z "$$CREDS" ]; then \
 	  echo "WARNING: Could not extract AWS credentials (SSO expired?). AWS calls may fail."; \
 	  DOCUMENTS_BUCKET=$${DOCUMENTS_BUCKET} docker compose up -d --build; \
