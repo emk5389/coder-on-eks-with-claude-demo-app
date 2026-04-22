@@ -40,7 +40,7 @@ If no PR exists for the current branch, tell the user to create one first.
 
 ```bash
 ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
-BUCKET="doc-chat-pr-assets-${ACCOUNT_ID}"
+BUCKET="demo-doc-chat-pr-assets-${ACCOUNT_ID}"
 ```
 
 If `aws sts` fails, the workspace's role chain isn't set up. Tell the user to check that `WORKSPACE_ACCESS_ROLE_ARN` is populated in the workspace template parameters and that they re-started the workspace after setting it.
